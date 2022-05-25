@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+<style>
+  /* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 400px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+<body>
+
+<div class="row">
+  <div class="column" style="text-align: center; padding-top: 100px;padding-bottom: 100px">
+    <div>
+      METAMATERIALS LAB: Discretizar una función
+      <p style = "text-align: left;padding-left: 20px;">
+        En function se puede modificar la función, ejemplo, escribiendo: "Math.cos(x)", "3*Math.sin(x)", "4*x+1" <br>
+        En los sliders se puede modificar hasta que x se quiere la gráfica y el tamaño del step en la iteración <br>
+        En obtener puntos se obtienen ambos vectores: vector y, vector x. <br>
+        Con los botones de abajo en cada uno respectivo se puede copiar a la papelera cada vectir respectivo <br>
+
+      </p>
+    </div>
+  </div>
+
+  <div class="column" style="max-width:500px">
+      <div>
+        <button onclick="button_add()">Actualizar</button>
+        <button onclick="puntos()">Obtener puntos</button>
+      </div>
+       <br>
+      <div>
+        <input type="text" id="vector" style="overflow: scroll" name="name" value="vector">
+        <input type="text" id="vector1" style="overflow: scroll" name="name" value="vector">
+      </div>
+       <br>
+    <div>
+      
+        <button onclick="copiar()">Copiar a papelera</button>
+    
+        <button onclick="copiar1()">Copiar a papelera</button>
+   
+    </div>
+     <br>
+      <label for="name">Function:</label>
+      <input type="text" id="name" name="name" value="Math.sin(x)">
+      <div>
+        <label for="volume">x:</label>
+        <input type="range" id="volume" name="volume"
+        min="0" max="20" value="1" step="1"  oninput="this.nextElementSibling.value = this.value">
+        <output> 1 </output>
+      </div>
+
+      <div>
+        <label for="volume2"> step:</label>
+        <input type="range" id="volume2" name="volume2"
+        min="0" max="20"value="1" step="1" oninput="this.nextElementSibling.value = this.value/10">
+        <output> 0.1 </output>
+      </div>
+
+      <div>
+        <label for="volume">x:</label>
+        <input type="range" id="num_lineas" name="num_lineas"
+        min="0" max="10" value="1" step="1"  oninput="this.nextElementSibling.value = this.value">
+        <output> 3 </output>
+      </div>
+</div>
+
+<div class="row">
+  <div class="column">
+      <canvas id="myChart" style="width:50%;max-width:600px"></canvas>
+  </div>
+
+  <div class="column">
+    <canvas id="myChart2" style="width:50%;max-width:600px"></canvas>
+  </div>
+
+</div>
+
+
+
+
+<script>
+var myChart1 = new Chart("myChart1", {
+  type: 'line',
+  data: {
+    labels: ['a', 'b', 'c', 'd', 'e'],
+    datasets: [{
+      label: 'Dataset 1',
+      data: [
+        {x: 'a', y: 3},
+        {x: 'a', y: 4},
+        {x: 'b', y: 6},
+        {x: 'b', y: 7},
+        {x: 'c', y: 10}
+      ],
+      borderColor: 'blue'
+    }, {
+      label: 'Dataset 2',
+      data: [
+        {x: 'b', y: 3},
+        {x: 'b', y: 5},
+        {x: 'd', y: 7},
+        {x: 'd', y: 9}
+      ],
+      borderColor: 'red'
+    }, {
+      label: 'Dataset 3',
+      data: [
+        {x: 'b', y: 3},
+        {x: 'b', y: 6},
+        {x: 'b', y: 7},
+        {x: 'e', y: 9}
+      ],
+      borderColor: 'green'
+    }]
+  },
+  options: {
+    aspectRatio: 1,
+    elements: {
+      line: {
+        tension: 0,
+        fill: false
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

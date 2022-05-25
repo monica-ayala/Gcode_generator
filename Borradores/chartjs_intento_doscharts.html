@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<body>
+
+    <canvas id="myChart" width="240" height="240"></canvas>
+    <canvas id="myChart2" width="240" height="240"></canvas>
+
+
+<script>
+var xValues = [];
+var yValues = [];
+var xValues1 = [];
+var yValues1 = [];
+generateData("Math.sin(x)", 0, 10, 0.1);
+generateData1("Math.sin(x)", 0, 10, 1);
+
+new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: xValues
+    datasets: [{
+      fill: false,
+      pointRadius: 0,
+      borderColor: "rgba(0,0,255,0.5)",
+      data: yValues
+    }]
+  },   
+  options: {
+    scales: {
+        xAxes: [{
+            ticks: {
+                display: false //this will remove only the label
+            }
+        }]
+    },
+    title: {
+      display: true,
+      text: "y = sin(x)",
+      fontSize: 16
+    },
+    legend: {
+    	display:false
+    }
+ } 
+  
+});
+
+/**new Chart("myChart2", {
+  type: "line",
+  data: {
+    labels: xValues1
+    datasets: [{
+      fill: false,
+      pointRadius: 0,
+      borderColor: "rgba(0,0,255,0.5)",
+      data: yValues1
+    }]
+  },   
+  options: {
+    scales: {
+        xAxes: [{
+            ticks: {
+                display: false //this will remove only the label
+            }
+        }]
+    },
+    title: {
+      display: true,
+      text: "y = sin(x)",
+      fontSize: 16
+    },
+    legend: {
+    	display:false
+    }
+ } 
+  
+});**/
+
+function generateData(value, i1, i2, step = 1) {
+  for (let x = i1; x <= i2; x += step) {
+    yValues.push(eval(value));
+    xValues.push(x);
+  }
+}
+
+function generateData1(value, i1, i2, step = 1) {
+  for (let x = i1; x <= i2; x += step) {
+    yValues1.push(eval(value));
+    xValues1.push(x);
+  }
+}
+</script>
+
+</body>
+</html>

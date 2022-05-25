@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script>
+		// primero recibe la función
+		// recibe los parámetros para sacar los puntos (que distancia de largo por ancho)
+		// recibe la distancia entre las funciones, recibe el número de puntos por curvas a sacar
+		// obtiene los puntos a graficar (matriz)
+		// largo = num*pi
+		// ancho = ancho / separacion
+		// tienes inicio y fin del programa
+		// se crea el relleno con G0 y G1
+	</script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+	<title> G code generator </title>
+</head>
+
+<body style="padding-left: 50px">
+
+	<div>
+        <button onclick="actualizar_parametros()">Actualizar</button>
+        <button onclick="download_code()">Descargar código</button>
+    </div>
+    <br>
+    <div>
+        <input type="text" id="largo" style="overflow: scroll" value="10">
+        <input type="text" id="ancho" style="overflow: scroll" value="10">
+        <label for="funcion">Function:</label>
+        <input type="text" id="funcion" style="overflow: scroll" value="Math.sin(x)">
+    </div>
+
+    <div style="width:400px">
+    <div>
+        <label for="separacion"> separación:</label>
+        <input type="range" id="separacion" 
+        min="1" max="10" value="1" step="1"  oninput="this.nextElementSibling.value = this.value">
+        <output> 1 </output>
+    </div>
+
+    <div>
+        <label for="iteracion">N:</label>
+        <input type="range" id="iteracion" 
+        min="1" max="10" value="1" step="1"  oninput="this.nextElementSibling.value = this.value">
+        <output> 1 </output>
+    </div>
+    <div id="res"> RESPUESTA </div>
+	</div>
+
+<script>
+	var layer = 0.27;
+	var matriz_puntos = []
+	var x_vector = []
+	var extrusion = 1;
+	var textToSave = ";CÓDIGO CREADO \n M82 ;absolute extrusion mode \n G0 F3000 Y50 ;avoid prime blob \n G92 E0 \n G92 E0 \n G10 \n ;LAYER_COUNT:26 \n M107 \n G0 F4500 X101.55 Y18.41 Z0.27  \n G11"
+
+	function obtener_puntos(len,width,funct,k,n){
+		x_vector = [];
+		for(let i=0;i<len*3.1415;i++){
+			x_vector.push(i);
+		}
+
+		for(let i=0;i<10;i++){
+			matriz_puntos.push([]);
+			matriz_puntos[i] = x_vector.map(num=>{return Math.sin(num)+k;});
+		}
+		document.getElementById("res").innerHTML = matriz_puntos[1];
+	}
+
+	function actualizar_parametros(){
+		matriz_puntos = [];
+		var largo = document.getElementById("largo").value; //text input
+		var ancho = document.getElementById("ancho").value;  //text input
+		var funcion = document.getElementById("funcion").value; //text input
+		var separacion = document.getElementById("separacion").value; //slider
+		var n = document.getElementById("iteracion").value; //slider
+		obtener_puntos(largo,ancho,funcion,1,n);
+	}
+
+	function generate_code(){
+		x_pos = 100;
+		for(let i=0;i<matriz_puntos[0].length;i++){
+			extrusion = extrusion + 0.09;
+			textToSave = textToSave + "G1 X"+x_pos+" Y"+ matriz_puntos[0][i]*10+" E"+extrusion+"\n";
+			x_pos = x_pos + 2.8125;
+		}
+		layer = layer + .70;
+		textToSave = textToSave + "G0 F4500 X101.55 Y18.41 Z"+layer;
+	}
+
+	function download_code(){
+		for(let i=0;i<10;i++){
+			generate_code();
+		}
+		var hiddenElement = document.createElement('a');
+		hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+		hiddenElement.target = '_blank';
+		hiddenElement.download = 'myFile.txt';
+		hiddenElement.click();
+	}
+
+	
+
+
+
+
+</script>
+</body>
+</html>

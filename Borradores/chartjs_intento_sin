@@ -1,0 +1,69 @@
+<! DOCTYPE HTML> 
+<HTML> 
+<head lang = "EN"> 
+    <Meta charset = "UTF-. 8"> 
+    <title> line graph </ title> 
+    <Script the src = "http://www.obge.top/ JS / chartjs / 2.8.0 / chart.min.js "> 
+    </ Script> 
+
+</ head> 
+<body> 
+    <- width of the box is centered and 600px ->! 
+    <div style =" width: 600px; margin: Auto 0px "> 
+        <-! do chart on the canvas -> 
+        <canvas id =" myChart "> 
+        </ canvas> 
+    </ div> 
+        <Script> // get the object id is myChart 2d context var chartjs = the Document .getElementById ( 'myChart'). getContext ( '2d');
+             // transmission parameters based on the object chartjs Chart var myChart = new new
+            
+            
+            The Chart (chartjs, {
+                 // type: "line" represents a line graph If we histogram, line replaced the bar. 
+                Type: 'line' ,
+                 // Data representation provides data to display 
+                Data: {
+                     // Labels a graph the text below the X-axis 
+                    Labels: [ '0', '[pi] / 2', '[pi]', '3 [pi / 2', '2 [pi]', '5π / 2' ],
+                     // . where the data in the data set represents a collection of datasets only one data, the data will be displayed if the plurality of lines in the graph 
+                    Datasets: [{
+                         // Lable this set of data represents a name 
+                        label: 'sin FIG' ,
+                         // data corresponding to specific data in the Y-axis position 
+                        data : [0,1,0,-1,0,1],
+                         // the borderColor line color 
+                        the borderColor: 'Red' ,
+                         // borderWidth line width 
+                        borderWidth:. 1 ,
+                         // borderDash: [5, 5] is used to represent a broken line. [5,5] which represent the length and the distance of a broken line. 
+                        borderDash: [5, 5 ],
+                         //   Fill: filling portion without false polyline comprises using the shadow of 
+                        Fill: false , 
+
+                    }, 
+                            // plurality of lines successively increases 
+                        { 
+                            label: "FIG COS" , 
+                            Data: [1,0, -1,0,1,0 ], 
+                            borderColor: "Blue" , 
+                            borderWidth: 1 , 
+                            the Fill: to true , 
+                        } 
+                    ] 
+                }, 
+                // Options Other options 
+                Options: {
+                     // the ToolTips in the mouse to the icon when prompted information 
+                    the ToolTips in the: {
+                         // INTERSECT: the mouse does not put false data point when the message will 
+                        INTERSECT: false ,
+                         // model display mode
+                        mode:'index'
+                    }
+                }
+            });
+        </script>
+
+
+</body>
+</html>

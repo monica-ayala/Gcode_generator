@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+<style>
+  /* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 400px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+<body>
+
+<div class="row">
+  <div class="column" style="text-align: center; padding-top: 100px;padding-bottom: 100px">
+    <div>
+      METAMATERIALS LAB: Discretizar una función
+      <p style = "text-align: left;padding-left: 20px;">
+        En function se puede modificar la función, ejemplo, escribiendo: "Math.cos(x)", "3*Math.sin(x)", "4*x+1" <br>
+        En los sliders se puede modificar hasta que x se quiere la gráfica y el tamaño del step en la iteración <br>
+        En obtener puntos se obtienen ambos vectores: vector y, vector x. <br>
+        Con los botones de abajo en cada uno respectivo se puede copiar a la papelera cada vectir respectivo <br>
+
+      </p>
+    </div>
+  </div>
+
+  <div class="column" style="max-width:500px">
+      <div>
+        <button onclick="button_add()">Actualizar</button>
+        <button onclick="puntos()">Obtener puntos</button>
+        <button onclick="borrar()">Borrar</button>
+        <button onclick="generateFilas()">Filas</button>
+        <button onclick="download_code()">Descargar código</button>
+      </div>
+       <br>
+      <div>
+        <input type="text" id="vector" style="overflow: scroll" name="name" value="vector">
+        <input type="text" id="vector1" style="overflow: scroll" name="name" value="vector">
+        <input type="text" id="filas" style="overflow: scroll" name="name" value="4">
+        <input type="text" id="espacio" style="overflow: scroll" name="name" value="2">
+        <input type="text" id="layers" style="overflow: scroll" name="name" value="20">
+      </div>
+       <br>
+    <div>
+      
+        <button onclick="copiar()">Copiar a papelera</button>
+    
+        <button onclick="copiar1()">Copiar a papelera</button>
+   
+    </div>
+     <br>
+      <label for="name">Function:</label>
+      <input type="text" id="name" name="name" value="Math.sin(x)">
+      <div>
+        <label for="volume">x:</label>
+        <input type="range" id="volume" name="volume"
+        min="1" max="20" value="1" step="1"  oninput="this.nextElementSibling.value = this.value">
+        <output> 1 </output>
+      </div>
+
+      <div>
+        <label for="volume2"> step:</label>
+        <input type="range" id="volume2" name="volume2"
+        min="1" max="20"value="1" step="1" oninput="this.nextElementSibling.value = this.value/10">
+        <output> 0.1 </output>
+      </div>
+
+</div>
+
+<div class="row">
+  <div class="column">
+      <canvas id="myChart" style="width:50%;max-width:600px"></canvas>
+  </div>
+
+  <div class="column">
+    <canvas id="myChart2" style="width:50%;max-width:600px"></canvas>
+  </div>
+
+</div>
+
+
+
+
+<script>
+var textToSave = "";
+var xValues = [];
+var yValues = [];
+var xValues1 = [];
+var yValues1 = [];
+var yValues_matrix=[];
+var filas=0;
+var espacio = 0;
+var extrusion = 0;
+var layer = 0.7
+var aux = "";
+generateData("Math.sin(x)", 0, 10, 1);
+generateData1("Math.sin(x)", 0, 10, 0.1);
+
+var chart = new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+      fill: false,
+      pointRadius: 0,
+      borderColor: "rgba(0,0,255,0.5)",
+      data: yValues
+    }]
+  },   
+  options: {
+    scales: {
+        xAxes: [{
+            ticks: {
+                display: false //this will remove only the label
+            }
+        }]
+    },
+    title: {
+      display: true,
+      text: "y = sin(x)",
+      fontSize: 16
+    },
+    legend: {
+      display:false
+    }
+ } 
+  
+});
+
+var chart2 = new Chart("myChart2", {
+  type: "line",
+  data: {
+    labels: xValues1,
+    datasets: [{
+      lineTension: 0,
+      fill: false,
+      pointRadius: 2,
+      borderColor: "rgba(0,0,255,0.5)",
+      data: yValues1
+    }]
+  },   
+  options: {
+    scales: {
+        xAxes: [{
+            ticks: {
+                display: false //this will remove only the label
+            }
+        }]
+    },
+    title: {
+      display: true,
+      text: "y = sin(x)",
+      fontSize: 16
+    },
+    legend: {
+      display:false
+    }
+ } 
+  
+});
+
+function generateData(value, i1, i2, step = 1) {
+  for (let x = i1; x <= i2; x += step) {
+    yValues.push(eval(value));
+    xValues.push(x);
+  }
+}
+
+function generateData1(value, i1, i2, step = 1) {
+  for (let x = i1; x <= i2; x += step) {
+    yValues1.push(eval(value));
+    xValues1.push(x);
+  }
+}
+
+function puntos(){
+  document.getElementById("vector").value = yValues_matrix[1]; 
+  document.getElementById("vector1").value = xValues;
+}
+
+function copiar() {
+  var copyText = document.getElementById("vector");
+  navigator.clipboard.writeText(copyText.value);
+  alert("Se copio el vector y");
+}
+
+function copiar1() {
+  var copyText = document.getElementById("vector1");
+  navigator.clipboard.writeText(copyText.value);
+  alert("Se copio el vector x");
+}
+
+function generateFilas(){
+  filas = document.getElementById('filas').value;
+  filas = parseInt(filas);
+  espacio = document.getElementById("espacio").value;
+  for(let i=0;i<filas;i++){
+    yValues_matrix.push(yValues1.map(num=>{return num+espacio*(i+1);}))
+    var newDataset={
+      lineTension: 0,
+      fill: false,
+      pointRadius: 2,
+      borderColor: "rgba(0,0,255,0.5)",
+      data: yValues_matrix[i]
+    }
+    chart2.data.datasets.push(newDataset);
+  }
+  chart2.update();
+}
+
+function borrar(){
+  for(let i=0;i<filas;i++){
+    yValues_matrix.pop();
+    chart2.data.datasets.pop();
+  }
+  chart2.update();
+}
+
+function calc_distance(x,x2,y,y2){
+
+  res = Math.sqrt((x-x2)*(x-x2) + (y-y2)*(y-y2));
+  return res;
+}
+
+function generate_code(k){
+  var auxx = "";
+	for(let i=1;i<100;i++){
+		extrusion = extrusion + 0.035*(calc_distance(i,i-1,yValues_matrix[k][i],yValues_matrix[k][i-1]));
+		auxx = auxx + "G1 X"+((i))+" Y"+ 10*(yValues_matrix[k][i]) +" E"+extrusion+"\n";
+	}
+  if(k==3){
+    return auxx + "\nG0 X"+ yValues_matrix[0][0] + " Y2\n";
+  }
+  else{
+    return auxx + "\nG0 X"+ yValues_matrix[k+1][0] + " Y2\n";
+  }
+	//layer = layer + .70;
+	//textToSave = textToSave + "G0 F4500 X101.55 Y18.41 Z"+layer;
+}
+
+function generate_code_inv(k){
+  var auxx = "";
+  for(let i=1;i<100;i++){
+    extrusion = extrusion + 0.035*(calc_distance(i,i-1,yValues_matrix[k][i],yValues_matrix[k][i-1]));
+    auxx = auxx + "G1 X"+10*(yValues_matrix[k][i])+" Y"+ i +" E"+extrusion+"\n";
+  }
+  if(k==3){
+    return auxx + "\nG0 X2 Y"+yValues_matrix[0][0] + "\n"
+  }
+  else{
+    return auxx + "\nG0 X2 Y"+yValues_matrix[k+1][0]+"\n";
+  }
+  
+  //layer = layer + .70;
+  //textToSave = textToSave + "G0 F4500 X101.55 Y18.41 Z"+layer;
+}
+
+function generate_code2(p){
+    filas = document.getElementById('filas').value;
+    p = p * 1; 
+    
+      for(let k=0;k<filas;k++){
+              auxxx = generate_code_inv(k);
+              aux = aux + auxxx + "G0 X"+0+" Y"+yValues_matrix[k][0]+"\n";
+      }
+    
+    
+    return aux;
+}
+//no funciona mi for :( entonces lo copie y pegue 20 veces
+
+function generate_code3(){
+    aux = generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z1\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z1.3\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z1.6\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z1.9\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z2.2\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z2.5\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z2.8\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z3.1\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z3.4\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z3.7\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z3.8\n" + generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z4\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z4.3\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z4.6\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z4.9\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z5.2\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z5.5\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z5.8\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z6.1\n" +  generate_code(0) + generate_code_inv(0) + generate_code(1) + generate_code_inv(1) + generate_code(2) + generate_code_inv(2) + generate_code(3) + generate_code_inv(3) + ";Layer\nG0 Z6.4\n" ;
+    return aux;
+}
+
+function download_code(){
+    layers = document.getElementById('layers').value;
+    filas = document.getElementById('filas').value;
+    var aux2 = "";
+    var height = 0;
+
+
+    aux2=generate_code3();
+
+    textToSave = ";CÓDIGO START \nM140 S70 \nM105 \nM190 S70\nM104 S235 \nM82 \nG28 \nG92 E0 \nG Z10 F1500\n;CÓDIGO BODY \n\nG0 Z0.7 F1500"
+    textToSave = textToSave + aux2;
+
+    textToSave = textToSave +";CÓDIGO END \nM140 S0\nM204\nM205 X20 Y20\nM107\nG4\nM220 S100\nM221 S100\nG91\nG1 F1800 E-3\nG1 F3000 Z20\nG90\nG1 X0 Y235 F1000\nM84\nM82\nM104 S0"
+    
+		var hiddenElement = document.createElement('a');
+		hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+		hiddenElement.target = '_blank';
+		hiddenElement.download = 'myFile.txt';
+		hiddenElement.click();
+	}
+
+function button_add(){
+  xValues=[];
+  yValues=[];
+  xValues1=[];
+  yValues1=[];
+
+  str = document.getElementById('name').value;
+  var x = document.getElementById('volume').value;
+  var h = document.getElementById('volume2').value;
+  var h2 = parseInt(h)/10;
+  generateData1(str,0,parseInt(x),h2);
+  generateData(str,0,parseInt(x),0.09);
+  chart2.data.labels=xValues1;
+  chart2.data.datasets[0].data = yValues1;
+
+  chart2.options.title.text = str;
+  chart2.update();
+
+  chart.data.labels=xValues;
+  chart.data.datasets[0].data = yValues;
+  chart.options.title.text = str;
+
+  chart.update();
+}
+</script>
+
+</body>
+</html>

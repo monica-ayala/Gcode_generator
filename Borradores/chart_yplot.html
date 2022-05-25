@@ -1,0 +1,57 @@
+<html>
+<head>
+</head>
+<body>
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+var ctx1 = document.getElementById("myChart");
+var myChart1 = new Chart(ctx1, {
+  type: 'line',
+  data: {
+    labels: ['a', 'b', 'c', 'd', 'e'],
+    datasets: [{
+      label: 'Dataset 1',
+      data: [
+        {x: 'a', y: 3},
+        {x: 'a', y: 4},
+        {x: 'b', y: 6},
+        {x: 'b', y: 7},
+        {x: 'c', y: 10}
+      ],
+      borderColor: 'blue'
+    }, {
+      label: 'Dataset 2',
+      data: [
+        {x: 'b', y: 3},
+        {x: 'b', y: 5},
+        {x: 'd', y: 7},
+        {x: 'd', y: 9}
+      ],
+      borderColor: 'red'
+    }, {
+      label: 'Dataset 3',
+      data: [
+        {x: 'b', y: 3},
+        {x: 'b', y: 6},
+        {x: 'b', y: 7},
+        {x: 'e', y: 9}
+      ],
+      borderColor: 'green'
+    }]
+  },
+  options: {
+    aspectRatio: 1,
+    elements: {
+      line: {
+        tension: 0,
+        fill: false
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

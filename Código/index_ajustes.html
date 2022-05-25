@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Login-Box-En.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+    <div class="d-flex flex-column justify-content-center" id="login-box" style="width: 400px;">
+        <div class="login-box-header">
+            <h4 style="color: rgb(0,0,0);margin-bottom: 0px;font-weight: 400;font-size: 27px;">Metamateriales</h4>
+        </div>
+        <div class="login-box-content">
+            <button class="btn btn-success" style="width:100%" onclick="download_code()"><i class="fa fa-download" style="margin-left:0px;padding-right:20px;padding-left:22px;width:56px;"></i>Descargar Código</button>
+            
+        </div>
+        <div class="d-flex flex-row align-items-center login-box-seperator-container">
+            <div class="login-box-seperator"></div>
+            <div class="login-box-seperator-text">
+                <p style="margin-bottom:0px;padding-left:10px;padding-right:10px;font-weight:400;color:rgb(201,201,201);">parametrizar el modelo</p>
+            </div>
+            <div class="login-box-seperator"></div>
+        </div>
+
+        <div class="email-login" style="background-color:#ffffff;">
+
+            <label class="form-label" style="margin-top:10px" for="function">Función: </label> <input class="form-control" type="text" id="function" name="function" value="Math.sin(x)">
+            
+            <label class="form-label" style="margin-top:10px" for="precision"> Step </label> <input class="form-control" type="number" id="precision" name="precision" value="0.1">
+
+            <label class="form-label" style="margin-top:10px" for="amplitude"> Distancia entre funciones </label> <input class="form-control" type="number" id="amplitude" name="amplitude" value="2">
+
+            <label class="form-label" style="margin-top:10px" for="x_length"> Longitud de lado (num de periodos) </label> <input class="form-control" type="number" id="x_length" name="x_length" value="2">
+
+            <label class="form-label" style="margin-top:10px" for="z_length"> Longitud en mm </label> <input class="form-control" type="number" id="z_length" name="z_length" value="4">
+
+            <label class="form-label" style="margin-top:10px" for="separation"> Separación de capas (mm) </label> <input class="form-control" type="number" id="separation" name="separation" value="0.1">
+            
+            <label class="form-label" style="margin-top:10px" for="scale"> Escala </label> <input class="form-control" type="number" id="scale" name="scale" value="10">
+
+            <label class="form-label" style="margin-top:10px" for="extrusion"> Constante de extrusion </label> <input class="form-control" type="number" id="extrusion" name="extrusion" value="0.035">
+
+        </div>
+
+        <div class="submit-row" style="margin-bottom:8px;padding-top:0px;"></div>
+        <div id="login-box-footer" style="padding:10px 20px;padding-bottom:23px;padding-top:18px;">
+            <p style="margin-bottom:0px;">Conoce más sobre el proyecto:<a id="register-link" href="#">más información</a></p>
+        </div>
+    </div>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+// VARIABLES 
+start = 20
+let func = document.getElementById("function").value;
+let pres = document.getElementById("precision").value;
+let dist = document.getElementById("amplitude").value;
+let x_len = document.getElementById("x_length").value*2*Math.PI
+let y_len = x_len/dist
+let s = document.getElementById("separation").value;
+layers = document.getElementById("z_length").value/Number(s)
+let scale = document.getElementById("scale").value;
+let E = document.getElementById("extrusion").value;
+let Z = 0.7
+let extrusion = 0;
+Z = Number(Z)
+s = Number(s);
+E = Number(E);
+var yValues = [];  //AQUI VAN LOS DATOS DEL VECTOR Y
+var xValues = [];  //AQUI VAN LOS DATOS DEL VECTOR X
+var header = ";CÓDIGO START \nM140 S65 \nM105 \nM190 S65\nM104 S235 \nM82 \nG28 \nG92 E0 \nG0 Z0.7 F1500\n;CÓDIGO BODY \n"
+var footer = ";CÓDIGO END \nM140 S0\nM204\nM205 X20 Y20\nM107\nG4\nM220 S100\nM221 S100\nG91\nG1 F1800 E-3\nG0 F3000 Z20\nG90\nF1000\nM84\nM82\nM104 S0"
+var step = Number(pres) //calcular con pres
+var dataMatrix = [];
+
+
+//AQUI PARAMETRIZAS DONDE INICIA, DONDE TERMINA, EL STEP (PUNTOS POR PERIODO)
+function generateData(xVector, yVector, value, i1, i2, step = 1) { 
+  for (let x = i1; x <= i2; x += step) {
+    yVector.push(eval(value));
+    xVector.push(x);
+  }
+}
+
+function generateMesh(Matrix){
+  let xLines = y_len  //AQUI HAY QUE CALCULAR CON EL YLENGHT 
+  for(let i=0;i<xLines;i++){
+    Matrix.push(yValues.map(num=>{return num+dist*(i+1)}))
+  }
+}
+
+function generateCode(){
+
+  generateData(xValues,yValues,func,0,x_len,step);
+  generateMesh(dataMatrix);
+  var aux = "";
+  let xLines = y_len //AQUI HAY QUE CALCULAR CON EL YLENGTH
+  var points = x_len/step;//AQUI HAY QUE CALCULAR CON EL XLENGTH y STEP CUANTOS PUNTOS
+
+  for (let i=0;i<layers;i++){
+    for(let j=0;j<xLines;j=j+2){
+      
+      //LARGO
+      
+      aux = aux + 'G1 X'+(scale*(points-1)/10 + start)+ ' Y'+ (dataMatrix[j][0]*scale + start )+ '\n';
+
+      for(let k=Math.trunc(points);k>0;k=k-1){
+        if(k<points){
+          extrusion = extrusion + E*(calc_distance(k*scale,(k-1)*scale,dataMatrix[j][k]*scale,dataMatrix[j][k-1]*scale));
+        }
+        aux = aux + 'G1 X'+((k*scale)/10 + start )+' Y'+(dataMatrix[j][k]*scale + start )+ ' E'+extrusion+'\n';
+      }
+
+      aux = aux + 'G1 X'+((1*scale)/10 + start)+ ' Y'+ (dataMatrix[j+1][0]*scale + start )+ '\n';
+      for(let k=0;k<points;k++){
+        if(k>0){
+          extrusion = extrusion + E*(calc_distance(k*scale,(k-1)*scale,dataMatrix[j+1][k]*scale,dataMatrix[j+1][k-1]*scale));
+        }
+        aux = aux + 'G1 X'+((k*scale)/10 + start )+' Y'+(dataMatrix[j+1][k]*scale + start )+ ' E'+extrusion+'\n';
+      }
+    }
+
+    //ANCHO
+
+    for(let j=0;j<xLines;j=j+2){
+      aux = aux + 'G1 X'+(dataMatrix[j][0]*scale + start) +' Y'+ (((points-1)*scale)/10 + start)+'\n';
+      for(let k=Math.trunc(points);k>0;k--){
+        if(k<points){
+          extrusion = extrusion + E*(calc_distance(k*scale,(k-1)*scale,dataMatrix[j][k]*scale,dataMatrix[j][k-1]*scale));
+        }
+        aux = aux + 'G1 X'+(dataMatrix[j][k]*scale + start)+' Y'+((k*scale)/10 + start) + ' E'+extrusion+'\n';
+      }
+
+      aux = aux + 'G1 X'+(dataMatrix[j+1][0]*scale + start) +' Y'+ ((1*scale)/10 + start)+'\n';
+      for(let k=0;k<points;k++){
+        if(k>0){
+          extrusion = extrusion + E*(calc_distance(k*scale,(k-1)*scale,dataMatrix[j+1][k]*scale,dataMatrix[j+1][k-1]*scale));
+        }
+        aux = aux + 'G1 X'+(dataMatrix[j+1][k]*scale + start)+' Y'+((k*scale)/10 + start) + ' E'+extrusion+'\n';
+      }
+
+      
+    }
+
+    aux = aux + ';Layer' + '\n' +'G1 Z' + Z + '\n';
+    Z = Z + s;
+  }
+
+ 
+  return aux;
+}
+
+function calc_distance(x,x2,y,y2){ //FUNCION AUXILIAR PARA HACER LA EXTRUSION EN FUNCION DE LA DISTANCIA
+
+  res = Math.sqrt((x-x2)*(x-x2) + (y-y2)*(y-y2));
+  return res;
+}
+
+function deleteall(){
+  yValues = [];
+  xValues = [];
+  dataMatrix =[];
+  E = [];
+  func = document.getElementById("function").value;
+  pres = document.getElementById("precision").value;
+  dist = document.getElementById("amplitude").value;
+  x_len = document.getElementById("x_length").value*2*Math.PI
+  y_len = x_len/dist - 1 
+  s = document.getElementById("separation").value;
+  layers = document.getElementById("z_length").value/Number(s)
+  scale = document.getElementById("scale").value;
+  E = document.getElementById("extrusion").value;
+  step = Number(pres)
+  extrusion = 0
+  Z = 0.7
+  E = Number(E)
+  Z = Number(Z)
+  s = Number(s);
+}
+
+function consolelog(){
+
+  deleteall()
+  generateData(xValues,yValues,func,0,x_len,step);
+  generateMesh(dataMatrix);
+  console.log(dataMatrix);
+  console.log(step)
+}
+function download_code(){
+    
+    deleteall()
+    generateData(xValues,yValues,func,0,x_len,step);
+    generateMesh(dataMatrix);
+    var aux = generateCode();
+    textToSave = header;
+    textToSave = textToSave + aux;
+    textToSave = textToSave + footer
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'myFile.txt';
+    hiddenElement.click();
+  }
+</script>
+
+
+</body>
+
+</html>
